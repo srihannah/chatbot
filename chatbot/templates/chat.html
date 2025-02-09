@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 20px;
+        }
+        #chatbox {
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        #messages {
+            height: 400px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            background-color: #fff;
+        }
+        .message {
+            margin: 10px 0;
+        }
+        .user { color: blue; }
+        .bot { color: green; }
+        #input-box {
+            display: flex;
+        }
+        #msg {
+            flex: 1;
+            padding: 10px;
+        }
+        #send {
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        #send:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div id="chatbox">
+        <h2>Chat with Bot</h2>
+        <div id="messages"></div>
+        <div id="input-box">
+            <input type="text" id="msg" placeholder="Type a message..." autocomplete="off">
+            <button id="send">Send</button>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById("send").addEventListener("click", sendMessage);
+        document.getElementById("msg").addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                sendMessage();
+            }
+        });
+
+        function sendMessage() {
+            const msgInput = document.getElementById("msg");
+            const msg = msgInput.value.trim();
+            if (msg === "") return;
+
+            appendMessage("You", msg, "user");
+            msgInput.value = "";
+
+            fetch("/get", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: `msg=${encodeURIComponent(msg)}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                appendMessage("Bot", data.response, "bot");
+            });
+        }
+
+        function appendMessage(sender, text, className) {
+            const messagesDiv = document.getElementById("messages");
+            const messageDiv = document.createElement("div");
+            messageDiv.classList.add("message", className);
+            messageDiv.innerHTML = `<strong>${sender}:</strong> ${text}`;
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight; // Auto-scroll to the bottom
+        }
+    </script>
+</body>
+</html>
