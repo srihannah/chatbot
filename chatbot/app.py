@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, jsonify
 from transformers import AutoModelForCausalLM, AutoTokenizer
 import torch
+import mysql.connector
 
 # Load the pre-trained model and tokenizer
 tokenizer = AutoTokenizer.from_pretrained("microsoft/DialoGPT-medium")
@@ -8,6 +9,14 @@ model = AutoModelForCausalLM.from_pretrained("microsoft/DialoGPT-medium")
 
 # Initialize the Flask app
 app = Flask(__name__)
+
+db = mysql.connector.connect(
+    host="localhost",
+    user="root",         # Your MySQL username
+    password="Hannah@45", # Your MySQL password
+    database="chatbot_db"
+)
+cursor = db.cursor()
 
 @app.route("/")
 def index():
